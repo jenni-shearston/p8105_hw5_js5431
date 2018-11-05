@@ -9,5 +9,24 @@ output: github_document
 
 library(tidyverse)
 
+```
+
+
+```{r p1 read data}
+
+setwd("C:/Users/jenni/Dropbox/Columbia/Classes/Data Science I/Homeworks/p8105_hw5_js5431/data/")
+
+study_files = list.files(".")
+
+study_files = tibble(study_files)
+
+readin = function(x) {
+  read_csv(file = x)
+}
+
+study_data = map_dfr(study_files$study_files, readin)
+
+study_data2 = map(study_files$study_files, readin)
 
 ```
+
