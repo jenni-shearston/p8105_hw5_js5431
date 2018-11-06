@@ -12,21 +12,29 @@ library(tidyverse)
 ```
 
 
-```{r p1 read data}
+```{r p1 file name and path vars}
 
-setwd("C:/Users/jenni/Dropbox/Columbia/Classes/Data Science I/Homeworks/p8105_hw5_js5431/data/")
+file_names = list.files("./data")
 
-study_files = list.files(".")
+paths = tibble(file_names) %>% 
+  mutate(file_names = str_c("./data/", file_names))
 
-study_files = tibble(study_files)
+```
+
+
+```{r p1 function}
 
 readin = function(x) {
   read_csv(file = x)
 }
 
-study_data = map_dfr(study_files$study_files, readin)
+```
 
-study_data2 = map(study_files$study_files, readin)
+```{r p1 read in and clean}
+
+study_data = 
+  paths %>% 
+  mutate(data = map(file_names, readin))
 
 ```
 
