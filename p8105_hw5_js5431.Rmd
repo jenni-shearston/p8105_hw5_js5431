@@ -30,11 +30,15 @@ readin = function(x) {
 
 ```
 
-```{r p1 read in and clean}
+```{r p1 read in and clean, message=FALSE}
 
 study_data = 
   paths %>% 
-  mutate(data = map(file_names, readin))
+  mutate(data = map(file_names, readin),
+         id = str_replace(file_names, "./data/", ""),
+         id = str_replace(id, ".csv", ""),
+         exp_group = str_detect(id, "exp")) %>% 
+  select(-file_names)
 
 ```
 
