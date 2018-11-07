@@ -86,3 +86,40 @@ study_data %>%
 
 
 ## Problem 2
+
+
+```{r p2 import data}
+
+hom_data = read_csv("homicide-data.csv")
+
+```
+
+### Washington Post Homicide Data
+
+The Washington Post homicide data contains information on homicides from 50 major US cities, from the years 2007 to 2015. The dataset contains `r nrow(hom_data)` rows and `r ncol(hom_data)` columns. Variables include a unique identifer for each homicide, homicide related variables including the reported date of the homicide and the case dispsition, information about the vicitim, including the victim's first and last name, age, sex, and race, and geographic location, including the city, state, latitude, and longitude of the homicide. 
+
+### Total number of homicides and unsolved homicides by city
+
+```{r p2 city num homs & unsolv}
+
+hom_data = hom_data %>%
+  mutate(city_state = str_c(city, ", ", state),
+         disposition = as_factor(disposition))
+
+hom_data %>% 
+  group_by(city_state) %>% 
+  mutate(unsolv_true = str_detect(disposition, "without|No")) %>% 
+  summarise(num_homs = n_distinct(uid),
+            num_unsolv_homs = sum(unsolv_true == "TRUE")) %>% 
+  knitr::kable()
+
+```
+
+### Baltimore, MD
+
+```{r}
+
+
+
+```
+
