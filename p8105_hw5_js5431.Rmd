@@ -117,14 +117,12 @@ knitr::kable(unsolved)
 
 ### Baltimore, MD
 
-```{#r}
+```{r}
 
-hom_solve_unsolved_BMD = hom_data %>% 
-  filter(city_state == "Baltimore, MD") %>% 
-  mutate(unsolved = str_detect(disposition, "without|No")) %>% 
-  select(unsolved) %>% 
-  mutate(pt_results = prop.test(unsolved, )) %>% 
-  broom::tidy(pt_results)
+results_pt_bmd <- prop.test(x = unsolved$num_unsolv_homs[[3]], n = unsolved$num_homs[[3]])
+
+broom::tidy(results_pt_bmd)
+
   
 ```
 
