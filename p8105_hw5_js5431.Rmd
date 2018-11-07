@@ -9,8 +9,19 @@ output: github_document
 
 library(tidyverse)
 
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_bw() + theme(legend.position = "bottom"))
+
 ```
 
+## Problem 1
+
+### Read in and tidy data
 
 ```{r p1 file name and path vars}
 
@@ -22,13 +33,22 @@ paths = tibble(file_names) %>%
 ```
 
 
-```{r p1 function}
+```{r p1 functions}
 
+## read in files
 readin = function(x) {
   read_csv(file = x)
 }
 
+## tidy observation data
+obs_cleanup = function(x){
+  gather(x, key = week, value = obs_data, week_1:week_8) %>% 
+    mutate(week = str_replace(week, "week_", ""))
+}
+
+
 ```
+
 
 ```{r p1 read in and clean, message=FALSE}
 
@@ -37,8 +57,19 @@ study_data =
   mutate(data = map(file_names, readin),
          id = str_replace(file_names, "./data/", ""),
          id = str_replace(id, ".csv", ""),
-         exp_group = str_detect(id, "exp")) %>% 
+         exp_group = str_detect(id, "exp"),
+         data = map(data, obs_cleanup)) %>% 
   select(-file_names)
 
 ```
 
+### Spaghetti plot
+
+```{r p1 spaghetti plot}
+
+
+
+```
+
+
+## Problem 2
