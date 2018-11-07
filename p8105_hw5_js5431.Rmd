@@ -103,23 +103,28 @@ The Washington Post homicide data contains information on homicides from 50 majo
 ```{r p2 city num homs & unsolv}
 
 hom_data = hom_data %>%
-  mutate(city_state = str_c(city, ", ", state),
-         disposition = as_factor(disposition))
+  mutate(city_state = str_c(city, ", ", state))
 
-hom_data %>% 
+unsolved = hom_data %>% 
   group_by(city_state) %>% 
   mutate(unsolv_true = str_detect(disposition, "without|No")) %>% 
   summarise(num_homs = n_distinct(uid),
-            num_unsolv_homs = sum(unsolv_true == "TRUE")) %>% 
-  knitr::kable()
+            num_unsolv_homs = sum(unsolv_true == "TRUE"))
+
+knitr::kable(unsolved)
 
 ```
 
 ### Baltimore, MD
 
-```{r}
+```{#r}
 
-
-
+hom_solve_unsolved_BMD = hom_data %>% 
+  filter(city_state == "Baltimore, MD") %>% 
+  mutate(unsolved = str_detect(disposition, "without|No")) %>% 
+  select(unsolved) %>% 
+  mutate(pt_results = prop.test(unsolved, )) %>% 
+  broom::tidy(pt_results)
+  
 ```
 
