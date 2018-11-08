@@ -2,7 +2,9 @@
 title: "p8105_hw5_js5431"
 author: "J Shearston"
 date: "November 5, 2018"
-output: github_document
+output: 
+  github_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -23,6 +25,8 @@ theme_set(theme_bw() + theme(legend.position = "bottom"))
 
 ### Read in and tidy data
 
+Create file name and file path variables. 
+
 ```{r p1 file name and path vars}
 
 file_names = list.files("./data")
@@ -32,6 +36,7 @@ paths = tibble(file_names) %>%
 
 ```
 
+Create functions to read in files and tidy resulting list.
 
 ```{r p1 functions}
 
@@ -49,6 +54,7 @@ obs_cleanup = function(x){
 
 ```
 
+Use `map` to read in and clean the data.
 
 ```{r p1 read in and clean, message=FALSE}
 
@@ -87,8 +93,9 @@ study_data %>%
 
 ## Problem 2
 
+Read in data.
 
-```{r p2 import data}
+```{r p2 import data, message=FALSE}
 
 hom_data = read_csv("homicide-data.csv")
 
@@ -96,7 +103,7 @@ hom_data = read_csv("homicide-data.csv")
 
 ### Washington Post Homicide Data
 
-The Washington Post homicide data contains information on homicides from 50 major US cities, from the years 2007 to 2015. The dataset contains `r nrow(hom_data)` rows and `r ncol(hom_data)` columns. Variables include a unique identifer for each homicide, homicide related variables including the reported date of the homicide and the case dispsition, information about the vicitim, including the victim's first and last name, age, sex, and race, and geographic location, including the city, state, latitude, and longitude of the homicide. 
+The Washington Post homicide data contains information on homicides from 50 major US cities, from the years 2007 to 2015. The dataset contains `r nrow(hom_data)` rows and `r ncol(hom_data)` columns. Variables include a unique identifer for each homicide, homicide related variables including the reported date of the homicide and the case disposition, information about the victim, including the victim's first and last name, age, sex, and race, and geographic location, including the city, state, latitude, and longitude of the homicide. 
 
 ### Total number of homicides and unsolved homicides by city
 
@@ -117,12 +124,55 @@ knitr::kable(unsolved)
 
 ### Baltimore, MD
 
-```{r}
+```{r p2 proptest Baltimore}
 
 results_pt_bmd <- prop.test(x = unsolved$num_unsolv_homs[[3]], n = unsolved$num_homs[[3]])
 
-broom::tidy(results_pt_bmd)
+results_pt_bmd = broom::tidy(results_pt_bmd)
 
-  
 ```
 
+For the city of Baltimore, Maryland, a proportion of `r pull(results_pt_bmd, var = estimate)` homicides remain unsolved, with a confidence interval of `r pull(results_pt_bmd, var = conf.low)` - `r pull(results_pt_bmd, var = conf.high)`.
+
+### Proportion of unsolved homicides, US
+
+Creating a function for `prop.test` (plus some tidying), and using a `map` statement to apply it to all cities in the dataset.
+
+```{r p2 proptest all cities}
+
+## prop.test function
+
+pt_unsolvhom = function(x){
+  prop.test(x = unsolved$num_unsolv_homs[[x]], n = unsolved$num_homs[[x]]) %>% 
+    broom::tidy()
+  }
+
+## map statement and cleaning
+
+unsolved = unsolved %>% 
+  mutate(pt_results = map(1:51, pt_unsolvhom)) %>% 
+  unnest() %>% 
+  select(-statistic, -p.value, -parameter, -method, -alternative)
+
+```
+
+Plot: Proportion of unsolved homicides by city
+
+```{r p2 proptest plot}
+
+unsolved %>% 
+  filter(city_state != "Tulsa, AL") %>% 
+  mutate(city_state = forcats::fct_reorder(city_state, estimate)) %>% 
+  ggplot(aes(x = city_state, y = estimate)) +
+  geom_point(alpha = .5) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
+  labs(
+    title = "Figure 2. Proportion of Unsolved Homicides, 50 US Cities",
+    x = "Location",
+    y = "Prop. Unsolved Homicides",
+    caption = "Data from the Washington Post") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+Please note: The city called "Tulsa, AL" was filtered out because it had a homicide of 1 and after a Google search, did not appear to be a real city.
